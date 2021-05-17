@@ -23,7 +23,7 @@ public class AccountApprovalRequest implements Request {
 			Driver.userRequests.add(this);
 			Driver.accounts.get(accountId).setApproved(true);
 		} else {
-			// TODO log warning: resolved request re-evaluated
+			Driver.logger.error("Resolved request re-evaluated");
 		}
 
 	}
@@ -34,11 +34,12 @@ public class AccountApprovalRequest implements Request {
 			Driver.pendingAccounts.remove(this);
 			Driver.userRequests.add(this);
 			Driver.accounts.remove(accountId);
+			Driver.logger.info("Account: " + accountId + " deleted.");
 			for (User u : Driver.getMembersOfAccount(accountId)) {
-				u.getMyAccountIds().remove((Integer) accountId);
+				u.getMyAccountIds().remove(accountId);
 			}
 		} else {
-			// TODO log warning: resolved request re-evaluated
+			Driver.logger.error("Resolved request re-evaluated");
 		}
 	}
 

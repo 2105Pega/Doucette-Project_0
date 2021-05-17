@@ -5,7 +5,6 @@ import java.util.Vector;
 import com.revature.doucette.project0.data.Account;
 import com.revature.doucette.project0.data.User;
 import com.revature.doucette.project0.driver.Driver;
-import com.revature.doucette.project0.requests.Request.Status;
 
 public class FundsTransferRequest implements Request {
 
@@ -16,6 +15,7 @@ public class FundsTransferRequest implements Request {
 	private double transferAmmount;
 
 	public FundsTransferRequest(String sender, int senderAccountId, int recipiantAccountId, double transferAmmount) {
+		this.status=Status.Pending;
 		this.sender = sender;
 		this.senderAccountId = senderAccountId;
 		this.recipiantAccountId = recipiantAccountId;
@@ -29,6 +29,7 @@ public class FundsTransferRequest implements Request {
 			if(aRecieve.canWithdraw(transferAmmount)&&aSend.canDeposit(transferAmmount)) { // probably only need the canWithdraw here
 				aSend.addBalance(transferAmmount);
 				aRecieve.addBalance(-transferAmmount);
+				Driver.logger.info("Successful trnasfer of $" + transferAmmount + " from account "+recipiantAccountId+" to account " + senderAccountId);
 			}else {
 				System.out.println("Your account doen't have enough funds for the transfer.");
 				System.out.println("Request will remain pending.");
@@ -36,7 +37,7 @@ public class FundsTransferRequest implements Request {
 			}
 			status = Status.Approved;
 		} else {
-			// TODO log warning: resolved request re-evaluated
+			Driver.logger.error("Resolved request re-evaluated");
 		}
 	}
 
@@ -44,7 +45,7 @@ public class FundsTransferRequest implements Request {
 		if (status.equals(Status.Pending)) {
 			status = Status.Denied;
 		} else {
-			// TODO log warning: resolved request re-evaluated
+			Driver.logger.error("Resolved request re-evaluated");
 		}
 	}
 

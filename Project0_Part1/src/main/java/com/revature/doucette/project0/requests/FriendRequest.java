@@ -1,7 +1,6 @@
 package com.revature.doucette.project0.requests;
 
 import com.revature.doucette.project0.driver.Driver;
-import com.revature.doucette.project0.requests.Request.Status;
 
 public class FriendRequest implements Request {
 
@@ -21,7 +20,7 @@ public class FriendRequest implements Request {
 			Driver.users.get(sender).getMyFriends().add(recipiant);
 			status = Status.Approved;
 		} else {
-			// TODO log warning: resolved request re-evaluated
+			Driver.logger.error("Resolved request re-evaluated");
 		}
 	}
 
@@ -29,7 +28,7 @@ public class FriendRequest implements Request {
 		if (status.equals(Status.Pending)) {
 			status = Status.Denied;
 		} else {
-			// TODO log warning: resolved request re-evaluated
+			Driver.logger.error("Resolved request re-evaluated");
 		}
 
 	}

@@ -22,7 +22,7 @@ public class AccountJoinRequest implements Request {
 			Driver.users.get(recipiant).getMyAccountIds().add(accountID);
 			status = Status.Approved;
 		} else {
-			// TODO log warning: resolved request re-evaluated
+			Driver.logger.error("Resolved request re-evaluated");
 		}
 
 	}
@@ -32,7 +32,7 @@ public class AccountJoinRequest implements Request {
 		if (status.equals(Status.Pending)) {
 			status = Status.Denied;
 		} else {
-			// TODO log warning: resolved request re-evaluated
+			Driver.logger.error("Resolved request re-evaluated");
 		}
 	}
 

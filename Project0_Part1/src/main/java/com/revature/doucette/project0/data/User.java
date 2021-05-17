@@ -17,14 +17,17 @@ public class User implements Serializable {
 	private Vector<String> myFriends = new Vector<String>();
 
 	public User(String name, String password, boolean isAdmin) {
+		Driver.logger.trace("In User(name,password,isAdmin)");
 		this.username = name;
 		this.password = password;
 		this.isAdmin = isAdmin;
 	}
 
 	public void useApp() {
+		Driver.logger.trace("In User.useApp");
 		boolean using = true;
 		while (using) {
+			Driver.logger.debug("viewing user action menu");
 			// phase 2 user actions
 			System.out.println("Please select an action to perform:");
 			System.out.println("	accounts - Manage accounts.");
@@ -77,6 +80,7 @@ public class User implements Serializable {
 				break;
 			case "q":
 			case "quit":
+				
 				Driver.saveData();
 				System.exit(0);
 			default:
@@ -99,6 +103,7 @@ public class User implements Serializable {
 	}
 
 	private void manageAllAccounts() {
+		Driver.logger.trace("In User.manageAllAccounts");
 		boolean managing = true;
 		while (managing) {
 			System.out.println("Please Select an account to manage:");
@@ -141,6 +146,7 @@ public class User implements Serializable {
 	}
 
 	private void manageMyAccounts() {
+		Driver.logger.trace("In User.manageMyAccounts");
 		boolean managing = true;
 		while (managing) {
 			System.out.println("Please Select an account to manage:");
@@ -183,6 +189,7 @@ public class User implements Serializable {
 	}
 
 	private Account createAccount() {
+		Driver.logger.trace("In User.createAccount");
 		Account a = new Account(Driver.nextAvailableAccountID());
 		Driver.accounts.put(a.getId(), a);
 		// TODO: should probably let admins avoid submitting an approval request but
@@ -194,6 +201,7 @@ public class User implements Serializable {
 	}
 
 	private void createJointAccount() {
+		Driver.logger.trace("In User.createJointAccount");
 		Account newAccount = createAccount();
 		if (myFriends.size() > 0) {
 			Vector<String> addableFriends = new Vector<String>(myFriends);
@@ -238,6 +246,7 @@ public class User implements Serializable {
 	}
 
 	private void manageFriends() {
+		Driver.logger.trace("In User.manageFriends");
 		boolean managing = true;
 		while (managing) {
 			System.out.println("Your Friends:");
@@ -296,11 +305,13 @@ public class User implements Serializable {
 	}
 
 	private void removeFriend(User friend) {
+		Driver.logger.trace("In User.removeFriend");
 		myFriends.remove(friend.getUsername());
 		friend.getMyFriends().remove(username);
 	}
 
 	private void createNewFriendRequest(String friendName) {
+		Driver.logger.trace("In User.createNewFriendRequest");
 		FriendRequest f = new FriendRequest(username, friendName);
 		boolean frAlreadyExists = false;
 		for (Request r : Driver.userRequests) {
@@ -317,6 +328,7 @@ public class User implements Serializable {
 	}
 
 	private void manageRequests() {
+		Driver.logger.trace("In User.manageRequests");
 		if (isAdmin) {
 			System.out.println("Would you like to manage account requests or personal reuqests? (a/p)");
 			String res = Driver.console.nextLine().toLowerCase();
@@ -331,6 +343,7 @@ public class User implements Serializable {
 	}
 
 	private void managePersonalRequests() {
+		Driver.logger.trace("In User.managePersonalRequests");
 		boolean managing = true;
 		while (managing) {
 			Vector<Request> myRequests = new Vector<Request>();
@@ -369,6 +382,7 @@ public class User implements Serializable {
 	}
 
 	private void manageAccountRequests() {
+		Driver.logger.trace("In User.manageAccountRequests");
 		boolean managing = true;
 		while (managing) {
 			System.out.println("Account Requests:");
@@ -402,6 +416,7 @@ public class User implements Serializable {
 	}
 
 	public void view() {
+		Driver.logger.trace("In User.view");
 		System.out.println("	Username: " + username);
 		System.out.println("	Password: " + password);
 		System.out.println("	isAdmin: " + isAdmin);

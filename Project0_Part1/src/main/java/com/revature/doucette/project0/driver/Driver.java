@@ -40,17 +40,22 @@ public class Driver {
 	public static User currentUser = null;
 
 	public static void main(String[] args) {
+		logger.debug("Program started");
+		logger.trace("In Driver.main");
 
 		// phase 0 load data
 		loadData();
+		logger.debug("Data loaded");
 
 		console = new Scanner(System.in);
+		logger.debug("Scanner Booted");
 		boolean running = true;
 		while (running) {
 			// Phase 1 user Login
 			// choose login or register
 			boolean authenticating = true;
 			while (authenticating) {
+				logger.debug("Authenticating");
 				System.out.println("Would you like to login or register a new account? (login/register)");
 				String res = console.nextLine().toLowerCase();
 				switch (res) {
@@ -59,39 +64,48 @@ public class Driver {
 				case "login":
 					// login
 					authenticating = !login();
+					logger.debug("Login attempt complete");
 					break;
 				case "r":
 				case "reg":
 				case "register":
 					// register
 					authenticating = !register();
+					logger.debug("Register attempt complete");
 					break;
 				case "q":
 				case "quit":
-					return; // quit app. No need to save unmodified data
+					logger.info("User Quit");
+					authenticating=false;
+					running=false;
+					break; 
 				}
 			}
+			logger.debug("Authentication complete");
 			// phase 2 user actions
 			if (currentUser != null) {
+				logger.debug("User Authenticated");
 				currentUser.useApp();
-			} else {
-				System.out.println("Authenticated without current user!! (BIG PROBLEM)");
-				return;
 			}
 		}
+		logger.debug("Application closing");
 		console.close();
+		logger.debug("Scanner closed");
 
 		// save data before exiting
 		saveData();
+		logger.debug("Data Saved");
 
 	}
 
 	static boolean login() {
+		logger.trace("in Driver.login");
 		boolean loggingOn = true;
 		while (loggingOn) {
+			logger.debug("Loging on");
 			// gather credentials
 			String[] credentials = gatherCredentials();
-
+			logger.debug("Credentials gathered");
 			// match credentials to user
 			boolean userExists = false;
 			for (String u : users.keySet()) {
@@ -100,14 +114,17 @@ public class Driver {
 						System.out.println("Welcome " + u + "!");
 						currentUser = users.get(u);
 						loggingOn = false;
+						logger.info("User: " + u + " Succcessfully logged on.");
 					} else {
 						System.out.println("The password is incorrect for user " + u + ".");
+						logger.info("User: " + u + " Entered incorrect password");
 					}
 					userExists = true;
 					break;
 				}
 			}
 			if (!userExists) {
+				logger.debug("Selected user '"+credentials[0]+"' Doesn't exist");
 				System.out.println("There is no user with username: " + credentials[0]);
 				System.out.println(
 						"Would you like to use the current credentials to register a new account instead? (y/n)");
@@ -131,11 +148,14 @@ public class Driver {
 	}
 
 	static boolean register() {
+		logger.trace("in Driver.register");
 		boolean registering = true;
 		while (registering) {
+			logger.debug("Registering");
 			// gather credentials
 			String[] credentials = gatherCredentials();
-
+			logger.debug("Credentials gathered");
+			
 			// check credentials against existing users
 			boolean userExists = false;
 			for (String u : users.keySet()) {
@@ -145,6 +165,7 @@ public class Driver {
 				}
 			}
 			if (userExists) {
+				logger.info("User tried to register with existing account");
 				System.out.println("User " + credentials[0] + " Already Exists!");
 				System.out.println("Would you like to try again? (y/n)");
 				String res = console.nextLine().toLowerCase();
@@ -163,6 +184,7 @@ public class Driver {
 	}
 
 	static void createUser(String uname, String pword) {
+		logger.trace("In Driver.createUser");
 		boolean admin = false;
 		System.out.println("Would you like admin privelages? (y/n)");
 		String res = console.nextLine().toLowerCase();
@@ -170,10 +192,12 @@ public class Driver {
 			admin = true;
 		}
 		currentUser = new User(uname, pword, admin);
+		logger.info("New User: "+ currentUser + " created.");
 		users.put(currentUser.getUsername(), currentUser);
 	}
 
 	static String[] gatherCredentials() {
+		logger.trace("In Driver.gatherCredentials");
 		System.out.println("Enter Your Username:");
 		String r0 = console.nextLine();
 		System.out.println("Enter Your Password:");
@@ -183,6 +207,7 @@ public class Driver {
 	}
 
 	public static int nextAvailableAccountID() {
+		logger.trace("In Driver.nextAvailableAccountID");
 		if (largestAccountID == 0) {
 			for (int i : accounts.keySet()) {
 				if (i >= largestAccountID) {
@@ -194,10 +219,12 @@ public class Driver {
 	}
 
 	public static void viewAllUsers() {
+		logger.trace("In Driver.viewAllUsers");
 		for (String s : users.keySet()) {
 			System.out.println("	" + users.get(s));
 		}
 		System.out.println("Select a user for detailed view. Press enter to return to action menu.");
+		logger.debug("Selecting User");
 		String res = console.nextLine().toLowerCase();
 		if (users.keySet().contains(res)) {
 			users.get(res).view();
@@ -205,6 +232,7 @@ public class Driver {
 	}
 
 	public static Vector<User> getMembersOfAccount(Integer accountId){
+		logger.trace("In Driver.getMembersOfAccount");
 		Vector<User> out = new Vector<User>();
 		for(String name: users.keySet()) {
 			User u = users.get(name);
@@ -215,25 +243,30 @@ public class Driver {
 		return out;
 	}
 	public static void loadData() {
+		logger.trace("In Driver.loadData");
 		// load accounts
 		load(ACCOUNT_FILE_PATH,Account.class,(account)->{
 			accounts.put(account.getId(), account);
 		});
+		logger.info("Loaded Accounts: "+ accounts);
 		// load users
 		load(USER_FILE_PATH,User.class,(user)->{
 			users.put(user.getUsername(), user);
 		});
+		logger.info("Loaded Users: "+ users);
 		// load account requests
 		load(AAR_FILE_PATH,AccountApprovalRequest.class,(req)->{
 			pendingAccounts.add(req);
 		});
+		logger.info("Loaded Account Requests: "+ pendingAccounts);
 		// load user requests
 		load(USER_REQUESTS_FILE_PATH,Request.class,(req)->{
 			userRequests.add(req);
 		});
-		/**/System.out.println("Data Loaded");/**/
+		logger.info("Loaded User Requests: "+ userRequests);
 	}
 	public static <T extends Serializable> void load(String file,Class<T> type,Consumer<T> storer) {
+		logger.trace("In Driver.load");
 		FileInputStream fis;
 		ObjectInputStream ois;
 		try {
@@ -247,42 +280,40 @@ public class Driver {
 			ois.close();
 			fis.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-				//e.printStackTrace();
-			
-			/**/System.out.println("Didn't find " + file );/**/
+			logger.warn("Didn't find " + file );
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-				//e.printStackTrace();
+			logger.warn("IO Exception");
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			//e.printStackTrace();
-			
-			/**/System.out.println("Class " + type.toString() + " not found");/**/
+			logger.warn("Class " + type.toString() + " not found in file "+ file);
 		}
 		
 	}
 
 	public static void saveData() {
+		logger.trace("In Driver.getMembersOfAccount");
 		// save accounts
 		save(ACCOUNT_FILE_PATH,accounts.keySet(),(id)->{
 			return accounts.get(id);
 			});
+		logger.info("Saved Accounts: "+ accounts);
 		// save users
 		save(USER_FILE_PATH,users.keySet(),(id)->{
 			return users.get(id);
 			});
+		logger.info("Saved Users: "+ users);
 		// save account requests
 		save(AAR_FILE_PATH,pendingAccounts,(i)->{
 			return i;
 			});
+		logger.info("Saved Account Requests: "+ pendingAccounts);
 		// save user requests
 		save(USER_REQUESTS_FILE_PATH,userRequests,(i)->{
 			return i;
 		});
-		/**/System.out.println("Data Saved");/**/
+		logger.info("Saved User Requests: "+ userRequests);
 	}
 	public static <T,O extends Serializable> void save(String file, Collection<T> collection, Function<T,O> accessor) {
+		logger.trace("In Driver.save");
 		FileOutputStream fos;
 		ObjectOutputStream oos;
 		try {
@@ -294,15 +325,9 @@ public class Driver {
 			oos.close();
 			fos.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-				//e.printStackTrace();
-			
-			/**/System.out.println("Didn't find " + file );/**/
+			logger.warn("Didn't find " + file );
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-				//e.printStackTrace();
-			
-			/**//**/
+			logger.warn("IO Exception");
 		}
 	}
 }
@@ -335,20 +360,23 @@ public class Driver {
 //	Done - all data should be persisted in txt files
 //	  - 100% JUnit Test coverage
 //	  - Logging of transactions
-// Tasks
+
+
+// My Tasks
 //	 Done - account approval pipeline
 //	 Done - friend approval pipeline
-//	  - account funds management
-//    - manage specific accounts
-//	  - flyweight request logic
-//	Done - File i/o
+//	 Done - account funds management
+//   Done - manage specific accounts
+//	 Done - flyweight request logic (though not for funds transfer requests since multiple transfers of the same ammount isn't unreasonable)
+//	 Done - File i/o
 //	  - Logging
 //	  - JUnit tests
 
 //---------------------------------------------------------------------------
 // Topics to consider more next time
 // 	TDD - currently most of my classes work more like services than beans making them herder to test
-//	
+//	implementation - Request would likely be better implemented as an abstract class
+//				- i think building the data/model layers first would help with better application of TDD
 
 
 //-----------------------------------------------------------------------------

@@ -18,12 +18,14 @@ public class Account implements Serializable {
 //		this.id = -1; // invalid
 //	}
 	public Account(int id) {
+		Driver.logger.trace("In Account(id)");
 		this.id = id;
 		this.balance = 0;
 		this.approved = false;
 	}
 
 	public Account(int id, double balance, boolean approved) {
+		Driver.logger.trace("In Account(id,balance,approved)");
 		this.balance = balance;
 		this.id = id;
 		this.approved = approved;
@@ -31,6 +33,7 @@ public class Account implements Serializable {
 
 	// Methods
 	public void manage() {
+		Driver.logger.trace("In Account.manage");
 		if (approved) {
 			manageAsAdmin();
 		} else {
@@ -39,6 +42,7 @@ public class Account implements Serializable {
 	}
 
 	public void manageAsAdmin() {
+		Driver.logger.trace("In Account.manageAsAdmin");
 		boolean managing = true;
 		while (managing) {
 			// Read
@@ -86,6 +90,7 @@ public class Account implements Serializable {
 	}
 
 	private void deposit() {
+		Driver.logger.trace("In Account.deposit");
 		System.out.println("Please enter the ammount you'd like to deposit: ");
 		try {
 			double res = Double.parseDouble(Driver.console.nextLine());
@@ -96,14 +101,18 @@ public class Account implements Serializable {
 	}
 
 	private void quickDeposit(double ammount) {
+		Driver.logger.trace("In Account.quickDeposit");
 		if (canDeposit(ammount)) {
 			this.balance += ammount;
+			Driver.logger.info("Deposited "+ammount+" in account "+ id);
 		} else {
 			System.out.println("Deposit ammount invalid.");
+			Driver.logger.debug("Deposit failed, Invalid ammount");
 		}
 	}
 
 	public boolean canDeposit(double ammount) {
+		Driver.logger.trace("In Account.canDeposit");
 		if (ammount > 0) {
 			return true; // success
 		} else {
@@ -112,6 +121,7 @@ public class Account implements Serializable {
 	}
 
 	private void withdraw() {
+		Driver.logger.trace("In Account.withdraw");
 		System.out.println("Please enter the ammount you'd like to withdraw: ");
 		try {
 			double res = Double.parseDouble(Driver.console.nextLine());
@@ -122,14 +132,18 @@ public class Account implements Serializable {
 	}
 
 	private void quickWithdraw(double ammount) {
+		Driver.logger.trace("In Account.quickWithdraw");
 		if (canWithdraw(ammount)) {
 			this.balance -= ammount;
+			Driver.logger.info("Withdrew "+ammount+" from account " + id);
 		} else {
 			System.out.println("Withdrawl ammount invalid.");
+			Driver.logger.debug("Withdrawl failed, Invalid ammount");
 		}
 	}
 
 	public boolean canWithdraw(double ammount) {
+		Driver.logger.trace("In Account.canWithdraw");
 		if (ammount > 0 && ammount <= this.balance) {
 			return true;
 		} else {
@@ -138,6 +152,7 @@ public class Account implements Serializable {
 	}
 
 	private void transfer() {
+		Driver.logger.trace("In Account.transfer");
 		boolean transfering = true;
 		while (transfering) {
 			System.out.println("Please identify an account to transfer with.");
@@ -148,10 +163,12 @@ public class Account implements Serializable {
 				otherAccount = Driver.accounts.get(otherAccountId);
 			} catch (NumberFormatException e) {
 				System.out.println("invalid account id");
+				Driver.logger.warn("account id not a number");
 				continue;
 			}
 			if (otherAccount == null) {
 				System.out.println("Account " + otherAccountId + " does not exist.");
+				Driver.logger.info(" User attempted to access account " + otherAccountId + ". It does not exist.");
 				continue;
 			} else {
 				transfer(otherAccount);
@@ -161,6 +178,7 @@ public class Account implements Serializable {
 	}
 
 	private void transfer(Account account) {
+		Driver.logger.trace("In Account.transfer(ammount)");
 		boolean transfering = true;
 		while (transfering) {
 			System.out.println("Are you sending or recieving funds? (send/recieve/cancel)");
@@ -175,12 +193,15 @@ public class Account implements Serializable {
 						this.balance -= ammount;
 						account.addBalance(ammount);
 						System.out.println("Successful trnasfer of $" + ammount + " from your account to account " + account.getId());
+						Driver.logger.info("Successful trnasfer of $" + ammount + " from account "+id+" to account " + account.getId());
 					}else {
 						System.out.println("Transfer ammount invalid.");
+						Driver.logger.debug("Transaction failed, Invalid ammount");
 						continue;
 					}
 				} catch (NumberFormatException e) {
 					System.out.println("Unrecognised ammount");
+					Driver.logger.warn("transfer ammount not a number");
 					continue;
 				}
 				transfering=false;
@@ -190,17 +211,19 @@ public class Account implements Serializable {
 				System.out.println("Please enter an ammount to take: ");
 				try {
 					double ammount = Double.parseDouble(Driver.console.nextLine());
-					if(canWithdraw(ammount)&&account.canDeposit(ammount)) {
+					if(account.canWithdraw(ammount)&&canDeposit(ammount)) {
 						FundsTransferRequest ftr = new FundsTransferRequest(Driver.currentUser.getUsername(),id,account.getId(),ammount);
 						Driver.userRequests.add(ftr);
 						System.out.println("Request sent to transfer funds to your account!");
 						System.out.println("The transaction will be completed if and when one of the account holders accepts your request.");
 					}else {
 						System.out.println("Transfer ammount invalid.");
+						Driver.logger.debug("Transaction failed, Invalid ammount");
 						continue;
 					}
 				} catch (NumberFormatException e) {
 					System.out.println("Unrecognised ammount");
+					Driver.logger.warn("transfer ammount not a number");
 					continue;
 				}
 			default:
@@ -211,11 +234,16 @@ public class Account implements Serializable {
 	}
 
 	private void delete() {
+		Driver.logger.trace("In Account.delete");
 		System.out.println("Are you sure that you would like to delete this account? (y/n)");
 		String res = Driver.console.nextLine().toLowerCase();
 		if(res.equals("y")||res.equals("yes")) {
 			quickWithdraw(balance);// user should get their money out
 			Driver.accounts.remove(id);// drop account reference
+			for (User u : Driver.getMembersOfAccount(id)) {
+				u.getMyAccountIds().remove(id);
+			}
+			Driver.logger.info("Account: " + this + " deleted.");
 		}
 	}
 
@@ -244,6 +272,7 @@ public class Account implements Serializable {
 	}
 
 	public void view() {
+		Driver.logger.trace("In Account.view");
 		System.out.println("Account Info");
 		System.out.println("	Id: " + id);
 		System.out.println("	Balance: " + balance);
