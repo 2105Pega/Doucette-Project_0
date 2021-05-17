@@ -100,7 +100,7 @@ public class Account implements Serializable {
 		}
 	}
 
-	private void quickDeposit(double ammount) {
+	public void quickDeposit(double ammount) {
 		Driver.logger.trace("In Account.quickDeposit");
 		if (canDeposit(ammount)) {
 			this.balance += ammount;
@@ -131,7 +131,7 @@ public class Account implements Serializable {
 		}
 	}
 
-	private void quickWithdraw(double ammount) {
+	public void quickWithdraw(double ammount) {
 		Driver.logger.trace("In Account.quickWithdraw");
 		if (canWithdraw(ammount)) {
 			this.balance -= ammount;
@@ -168,7 +168,7 @@ public class Account implements Serializable {
 			}
 			if (otherAccount == null) {
 				System.out.println("Account " + otherAccountId + " does not exist.");
-				Driver.logger.info(" User attempted to access account " + otherAccountId + ". It does not exist.");
+				Driver.logger.info("User attempted to access account " + otherAccountId + ". It does not exist.");
 				continue;
 			} else {
 				transfer(otherAccount);

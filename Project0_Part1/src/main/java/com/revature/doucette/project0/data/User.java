@@ -80,7 +80,7 @@ public class User implements Serializable {
 				break;
 			case "q":
 			case "quit":
-				
+
 				Driver.saveData();
 				System.exit(0);
 			default:
@@ -448,14 +448,13 @@ public class User implements Serializable {
 		return password;
 	}
 
-	/*
-	 * * public void setPassword(String password) {//shouldn't change //
-	 * this.password = password; // }/
-	 **/
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
 	public boolean isAdmin() {
 		return isAdmin;
 	}
-
 	public void setAdmin(boolean admin) {
 		this.isAdmin = admin;
 	}

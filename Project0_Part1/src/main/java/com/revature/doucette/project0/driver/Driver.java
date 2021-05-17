@@ -208,7 +208,7 @@ public class Driver {
 
 	public static int nextAvailableAccountID() {
 		logger.trace("In Driver.nextAvailableAccountID");
-		if (largestAccountID == 0) {
+		if (largestAccountID == 0) { //only search if no current largest
 			for (int i : accounts.keySet()) {
 				if (i >= largestAccountID) {
 					largestAccountID = i;
@@ -352,14 +352,14 @@ public class Driver {
 //		Done - their accounts and ascociated balances
 //		Done - customer personal information
 //	Done - Admins should be able to manage applications for accounts
-//	  - Admins should be able to view 
+//	Done - Admins should be able to view 
 //		Done - all accounts
 //		Done - all account requests
 //		Done - all account operations (withdraw/deposit/transfer)
-//		  - delete acconuts
+//		Done - delete acconuts
 //	Done - all data should be persisted in txt files
-//	  - 100% JUnit Test coverage
-//	  - Logging of transactions
+//	Done - Logging of transactions
+//	Done - 100% JUnit Test coverage
 
 
 // My Tasks
@@ -369,15 +369,18 @@ public class Driver {
 //   Done - manage specific accounts
 //	 Done - flyweight request logic (though not for funds transfer requests since multiple transfers of the same ammount isn't unreasonable)
 //	 Done - File i/o
-//	  - Logging
-//	  - JUnit tests
+//	 Done - Logging (could probably log more but i believe i meet the requirements)
+//	 Done - JUnit tests
 
 //---------------------------------------------------------------------------
 // Topics to consider more next time
 // 	TDD - currently most of my classes work more like services than beans making them herder to test
 //	implementation - Request would likely be better implemented as an abstract class
-//				- i think building the data/model layers first would help with better application of TDD
-
+//		- i think building the data/model layers first would help with better application of TDD
+//		- having logging setup at the start would help avoid the hastle of going back through all the code to retroactively add logs)
+//	multi-threading - app would probably have multiple user instances acting at the same time
+//		- implimenting thread safety for updating user and account data
+//		- requests should also have thread safe implimentations in order to prevent them being resolved multiple times
 
 //-----------------------------------------------------------------------------
 // data

@@ -41,6 +41,12 @@ public class FundsTransferRequest implements Request {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return "FundsTransferRequest [status=" + status + ", sender=" + sender + ", senderAccountId=" + senderAccountId
+				+ ", recipiantAccountId=" + recipiantAccountId + ", transferAmmount=" + transferAmmount + "]";
+	}
+
 	private void deny() {
 		if (status.equals(Status.Pending)) {
 			status = Status.Denied;
